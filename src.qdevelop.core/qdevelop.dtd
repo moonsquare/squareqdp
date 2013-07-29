@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ELEMENT SQLConfig (property,includes,table-caches)+>
+
+<!ELEMENT property (sql+,param-formatter,formatter,footer)>
+
+<!ATTLIST property
+    index CDATA ID #REQUIRED
+    explain CDATA #IMPLIED
+    connect CDATA #IMPLIED
+    cacheAble (true|false) 
+    isDebug  (true|false) #IMPLIED
+    cacheConfig CDATA #IMPLIED
+    afterRun CDATA #IMPLIED
+>

@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "struts-2.3.dtd">
+
+<struts>
+	<!-- QDevelop框架全局Result配置,没特殊情况勿删，勿改！ -->
+	<!-- <package name="QDevelopDefault" namespace="/" extends="struts-default"> 
+		<interceptors> <interceptor name="friendError" class="com.qdevelop.web.interceptor.QDevelopErrorInterceptor"></interceptor> 
+		</interceptors> <default-action-ref name="index" /> <global-results> <result 
+		name="login">/login.jsp</result> <result name="friendError">/system/public/error.jsp</result> 
+		<result name="msg">/system/public/msg.jsp</result> <result name="result">/system/public/result.jsp</result> 
+		</global-results> <global-exception-mappings> <exception-mapping result="friendError" 
+		exception="com.qdevelop.lang.QDevelopException"></exception-mapping> </global-exception-mappings> 
+		</package> -->
+	<!-- 应用 extends="struts-QDevelopControl" 后，自动将用户权限、错误异常，日志管理等常用功能接管，子系统只管关心自己的业务开发 -->
+	<!-- <package name="struts-QDevelopControl" extends="QDevelopDefault"> <interceptors> 
+		<interceptor name="qd_intercepter" class="com.qdevelop.web.interceptor.QDevelopInterceptor" 
+		/> <interceptor name="ft_role_intercepter" class="com.fantong.oa.role.interceptor.RoleInterceptor" 
+		/> <interceptor name="qd_error" class="com.qdevelop.web.interceptor.QDevelopErrorInterceptor"></interceptor> 
+		<interceptor-stack name="QDevelopStack"> <interceptor-ref name="defaultStack" 
+		/> <interceptor-ref name="qd_intercepter" /> <interceptor-ref name="ft_role_intercepter" 
+		/> <interceptor-ref name="qd_error" /> </interceptor-stack> </interceptors> 
+		<default-interceptor-ref name="QDevelopStack" /> <global-results> <result 
+		name="error">/system/public/error.jsp</result> </global-results> <global-exception-mappings> 
+		<exception-mapping result="error" exception="com.qdevelop.lang.QDevelopException"></exception-mapping> 
+		</global-exception-mappings> </package> <package name="json-QDevelopControl" 
+		extends="struts-default"> <result-types> <result-type name="json" class="org.apache.struts2.json.JSONResult"/> 
+		</result-types> <interceptors> <interceptor name="qd_json_intercepter" class="com.qdevelop.web.interceptor.QDevelopJsonInteceptor" 
+		/> <interceptor name="json" class="org.apache.struts2.json.JSONInterceptor" 
+		/> <interceptor name="qd_error" class="com.qdevelop.web.interceptor.QDevelopErrorInterceptor"></interceptor> 
+		<interceptor-stack name="QDevelopJsonStack"> <interceptor-ref name="defaultStack" 
+		/> <interceptor-ref name="qd_json_intercepter" /> <interceptor-ref name="json" 
+		/> <interceptor-ref name="qd_error" /> </interceptor-stack> </interceptors> 
+		<default-interceptor-ref name="QDevelopJsonStack" /> <global-results> <result 
+		name="error">/system/public/jsonError.jsp</result> </global-results> <global-exception-mappings> 
+		<exception-mapping result="error" exception="com.qdevelop.lang.QDevelopException"></exception-mapping> 
+		</global-exception-mappings> </package> -->
+		
+	<!-- 默认登录界面 -->
+	<package name="QDevelopLogin" extends="QDevelopDefault">
+		<action name="login" class="com.qdevelop.web.action.CheckLoginAction">
+			<result name="success" type="redirect">${lastUrl}</result>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<interceptor-ref name="friendError"></interceptor-ref>
+		</action>
+
+		<action name="checkCode" class="com.qdevelop.web.action.CheckCodeAction">
+			<result type="stream">
+				<param name="contentType">image/jpeg</param>
+				<param name="inputName">inputStream</param>
+			</result>
+		</action>
+
+		<action name="loginOut" class="com.qdevelop.web.action.CheckLoginAction"
+			method="loginOut">
+			<result name="success" type="redirectAction">login</result>
+		</action>
+
+		<action name="checkLogin" class="com.qdevelop.web.action.CheckLoginAction"
+			method="checkLogin">
+			<result>/system/public/result.jsp</result>
+		</action>
+
+		<action name="checkUserLogin" class="com.qdevelop.web.action.CheckLoginAction"
+			method="checkLogin">
+			<result name="success" type="redirectAction">login</result>
+		</action>
+
+		<action name="checkSingleLogin" class="com.qdevelop.web.action.CheckLoginAction"
+			method="checkSingleLogin">
+			<result>/system/public/result.jsp</result>
+		</action>
+
+		<action name="reloadCert" class="com.qdevelop.web.action.SystemControlAction"
+			method="reloadCert">
+			<result>/system/public/msg.jsp</result>
+		</action>
+	</package>
+
+
+
+	<package name="system-QDevelopControl" extends="QDevelopDefault">
+		<result-types>
+			<result-type name="json" class="org.apache.struts2.json.JSONResult" />
+		</result-types>
+		<interceptors>
+			<interceptor name="qd_admin_intercepter"
+				class="com.qdevelop.web.interceptor.QDevelopAdminInterceptor" />
+			<interceptor name="json"
+				class="org.apache.struts2.json.JSONInterceptor" />
+			<interceptor name="qd_error"
+				class="com.qdevelop.web.interceptor.QDevelopErrorInterceptor"></interceptor>
+			<interceptor-stack name="QDevelopStack">
+				<interceptor-ref name="defaultStack" />
+				<interceptor-ref name="qd_admin_intercepter" />
+				<interceptor-ref name="json" />
+				<interceptor-ref name="qd_error" />
+			</interceptor-stack>
+		</interceptors>
+
+		<default-interceptor-ref name="QDevelopStack" />
+
+		<global-results>
+			<result name="error">/system/public/jsonError.jsp</result>
+		</global-results>
+		<global-exception-mappings>
+			<exception-mapping result="error"
+				exception="com.qdevelop.lang.QDevelopException"></exception-mapping>
+		</global-exception-mappings>
+
+	</package>
+
+
+	<!-- 增加一种直接获取数据值的方式 -->
+	<package name="QD_json" namespace="/json" extends="json-QDevelopControl">
+		<action name="*" class="com.qdevelop.web.action.QDevelopAPI"
+			method="selectWithJson">
+			<param name="index">{1}</param>
+			<result name="success" type="json">
+				<param name="root">result</param>
+			</result>
+		</action>
+	</package>
+
+	<package name="QD_ajax" namespace="/publicJson" extends="json-QDevelopControl">
+		<!-- 通用数据库Ajax查询 -->
+		<action name="query" class="com.qdevelop.web.action.AjaxQueryDBAction"
+			method="queryDB">
+			<result name="success" type="json" />
+		</action>
+
+		<action name="count" class="com.qdevelop.web.action.AjaxQueryDBAction"
+			method="count">
+			<result name="success" type="json">
+				<param name="root">total</param>
+			</result>
+		</action>
+
+		<action name="clear" class="com.qdevelop.web.action.SystemControlAction"
+			method="clearCacheByIndex">
+			<result name="success" type="json" />
+		</action>
+		
+		<action name="addUrl" class="com.qdevelop.web.action.SystemControlAction"
+			method="addUrl2Index">
+			<result name="success" type="json" />
+		</action>
+
+		<!-- 通用数据库Ajax更新数据 -->
+		<action name="update" class="com.qdevelop.web.action.AjaxQueryDBAction"
+			method="updateDB">
+			<result name="success" type="json" />
+		</action>
+
+		<!-- 通用数据库Ajax更新数据 -->
+		<action name="multiUpdate" class="com.qdevelop.web.action.AjaxMultiUpdateAction">
+			<result name="success" type="json" />
+		</action>
+
+		<!-- 通用数据库Ajax请求 树形数据 -->
+		<action name="tree" class="com.qdevelop.web.action.AjaxTreeAction">
+			<result name="success" type="json">
+				<param name="root">tree</param>
+			</result>
+		</action>
+
+		<!-- 通用数据库Ajax请求 树形表格数据 -->
+		<action name="treeGrid" class="com.qdevelop.web.action.AjaxTreeAction"
+			method="treeGrid">
+			<result name="success" type="json">
+				<param name="root">tree</param>
+			</result>
+		</action>
+
+		<!-- 通用ajax检测当前用户具有的权限 -->
+		<action name="checkRole" class="com.qdevelop.web.action.CheckRoleAction">
+			<result name="success" type="json" />
+		</action>
+
+		<action name="systemInfo" class="com.qdevelop.web.action.AjaxSystemInfoAction">
+			<result name="success" type="json">
+				<param name="root">value</param>
+			</result>
+		</action>
+
+		<!-- 通用cookie设置 -->
+		<action name="setCookie" class="com.qdevelop.web.action.CustomManageAction"
+			method="customSetCookie">
+			<result name="success" type="json" />
+		</action>
+
+		<!-- 通用cookie获取 -->
+		<action name="getCookie" class="com.qdevelop.web.action.CustomManageAction"
+			method="customGetCookie">
+			<result name="success" type="json" />
+		</action>
+
+		<!-- 通用session设置 -->
+		<action name="setSession" class="com.qdevelop.web.action.CustomManageAction"
+			method="customSetSession">
+			<result name="success" type="json" />
+		</action>
+
+		<!-- 通用session获取 -->
+		<action name="getSession" class="com.qdevelop.web.action.CustomManageAction"
+			method="customGetSession">
+			<result name="success" type="json" />
+		</action>
+
+		<!-- 获取用户登录日志信息 -->
+		<action name="loginLogInfo" class="com.qdevelop.web.action.LogLoginAction">
+			<result name="success" type="json" />
+		</action>
+
+		<action name="easyGridDownload" class="com.qdevelop.web.action.EasyUIDownLoadAction"
+			method="easyDown">
+			<result name="success" type="json" />
+		</action>
+
+	</package>
+
+	<package name="qd_system" namespace="/systemService" extends="struts-QDevelopControl">
+		<action name="*" class="com.qdevelop.web.action.SystemControlAction"
+			method="{1}">
+			<result>/system/public/msg.jsp</result>
+		</action>
+	</package>
+
+	<package name="qd_propeties_js" namespace="/platVariable"
+		extends="struts-QDevelopControl">
+		<action name="*" class="com.qdevelop.web.action.PropertiesAction">
+			<param name="propertiesKey">{1}</param>
+			<result name="success" type="stream">
+				<!-- 下载文件类型定义 -->
+				<param name="contentType">text/javascript;charset=utf8</param>
+				<!-- 下载文件输出流定义 -->
+				<param name="inputName">out</param>
+			</result>
+		</action>
+	</package>
+
+	<package name="qd_workflow" namespace="/workflow" extends="json-QDevelopControl">
+		<action name="*。*" class="com.qdevelop.web.action.WorkFlowAction">
+			<param name="index">{1}</param>
+			<param name="operate">{2}</param>
+			<result name="list" type="json">
+				<param name="root">rb</param>
+			</result>
+			<result name="operate" type="json">
+				<param name="root">wfr</param>
+			</result>
+		</action>
+	</package>
+
+	<package name="qd_admin_system" namespace="/adminService"
+		extends="system-QDevelopControl">
+
+		<!-- 数据库WEB客户端专用查询 -->
+		<action name="dbClientQuery" class="com.qdevelop.web.action.DBClientAction"
+			method="queryDB">
+			<result name="success" type="json" />
+		</action>
+
+		<!-- 数据库WEB客户端专用更新 -->
+		<action name="dbClientUpdate" class="com.qdevelop.web.action.DBClientAction"
+			method="updateDB">
+			<result name="success" type="json" />
+		</action>
+
+		<!-- 数据库WEB客户端专用查询表结构 -->
+		<action name="dbClientStruts" class="com.qdevelop.web.action.DBClientAction"
+			method="struts">
+			<result name="success" type="json" />
+		</action>
+
+		<action name="dbClientTabs" class="com.qdevelop.web.action.DBClientAction"
+			method="tableNames">
+			<result name="success" type="json" />
+		</action>
+		
+		<action name="clearTableCache" class="com.qdevelop.web.action.DBClientAction"
+			method="clearCache">
+			<result name="success" type="json" />
+		</action>
+
+		<action name="toSql" class="com.qdevelop.web.action.DBParserSQLAction">
+			<result name="success" type="stream">
+				<!-- 下载文件类型定义 -->
+				<param name="contentType">application/octet-stream;charset=iso-8859-1</param>
+				<!-- 下载文件处理方法 -->
+				<param name="contentDisposition">
+					attachment;filename="${downloadChineseFileName}"
+				</param>
+				<!-- 下载文件输出流定义 -->
+				<param name="inputName">downloadFile</param>
+			</result>
+		</action>
+
+
+	</package>
+
+	<package name="qd_security" namespace="/securityManage"
+		extends="struts-QDevelopControl">
+		<action name="*">
+			<result>/system/security/QD.{1}.jsp
+			</result>
+		</action>
+	</package>
+
+
+	<package name="QD_UI_tranTools" namespace="/tranTool"
+		extends="struts-QDevelopControl">
+		<action name="upload" class="com.qdevelop.web.action.FileUploadAction">
+			<!-- 文件上传类型限制 -->
+			<param name="allowType">.txt|.jpg|.png|.gif|.doc|.swf|.rar|.zip</param>
+			<!-- 定义上传路径，相对于系统根目录 -->
+			<param name="savePath">upload/</param>
+			<!-- 是否需要将上传文件名转成系统时间名 -->
+			<param name="isRandomName">false</param>
+			<!-- 文件大小限制，目前系统最大支持16M的附件 -->
+			<param name="maxSize">16384</param>
+			<result>/system/public/msg.jsp</result>
+		</action>
+
+		<action name="download" class="com.qdevelop.web.action.DownLoadAction">
+			<param name="inputPath"></param>
+			<!-- <param name="fileName"></param> -->
+			<result name="success" type="stream">
+				<!-- 下载文件类型定义 -->
+				<param name="contentType">application/octet-stream;charset=GBK</param>
+				<!-- 下载文件处理方法 -->
+				<param name="contentDisposition">
+					attachment;filename="${downloadChineseFileName}"
+				</param>
+				<!-- 下载文件输出流定义 -->
+				<param name="inputName">downloadFile</param>
+				<param name="bufferSize">4096</param>
+			</result>
+		</action>
+
+		<action name="resultDownload" class="com.qdevelop.web.action.DBResultDownLoadAction">
+			<result name="success" type="stream">
+				<!-- 下载文件类型定义 -->
+				<param name="contentType">application/octet-stream;charset=GBK</param>
+				<!-- 下载文件处理方法 -->
+				<param name="contentDisposition">
+					attachment;filename="${downloadChineseFileName}"
+				</param>
+				<!-- 下载文件输出流定义 -->
+				<param name="inputName">downloadFile</param>
+
+				<param name="bufferSize">16384</param>
+			</result>
+		</action>
+
+
+
+	</package>
+
+	<package name="app" namespace="/app" extends="struts-QDevelopControl">
+		<action name="*@*">
+			<result>/application/{1}/{2}.jsp</result>
+		</action>
+	</package>
+</struts>

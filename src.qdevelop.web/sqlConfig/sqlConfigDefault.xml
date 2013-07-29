@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 特殊符号转义表 &lt; < 小于号 &gt; > 大于号 &amp; & 和 &apos; ' 单引号 &quot; " 双引号 -->
+<SQLConfig>
+	<property index="menu" explain="系统功能菜单" cacheAble="false"
+		authorized="true" uniTable="qd_s_menu" uniKey="id" sql="select * from qd_menu" />
+
+	<property index="menuManage" explain="系统导航" cacheAble="true"
+		sql="select a.*,b.sid  from qd_menu a left join qd_s_menu b on a.id = b.id order by a.oper">
+		<formatter>
+			<expression>@com.qdevelop.web.handler.ParseRoleNameHandler@addNameByRID(SID,#this)
+			</expression>
+		</formatter>
+	</property>
+
+	<property index="menu_insert" explain="插入目录SQL" authorized="true"	uniTable="qd_s_menu"
+		sql="insert into qd_menu(menuname,linkurl,target,pid,icon,child) values('$[menuName]','$[linkurl]','$[target]',$[pid],'$[icon]',0)" />
+
+	<property index="menu_update" explain="更新目录SQL">
+		<sql>update qd_menu set
+			menuname='$[menuName]',linkurl='$[linkurl]',target='$[target]',pid=$[pid],oper=$[oper],icon='$[icon]'
+			where id=$[id]</sql>
+	</property>
+
+	<property index="menu_delete" explain="删除目录SQL">
+		<sql>delete from qd_menu where id=$[id] or pid = $[id]</sql>
+	</property>
+
+	<property index="menuOrderUpdate" explain="目录排序更改">
+		<sql repeat="id@order">update qd_menu set oper=$[order] where id=$[id]</sql>
+	</property>
+
+	<property index="menuRoleUpdate" explain="目录排序更改">
+		<sql repeat="id">delete from qd_s_menu where id=$[id]</sql>
+		<sql repeat="sid-id">insert into qd_s_menu(id,rid,sid)
+			values($[id],'0','$[sid]')</sql>
+	</property>
+
+	<property index="userCheckLogin" cacheAble="false" explain="用户登录验证SQL(不缓存)"
+		sql="select * from qd_jaas_user where loginname='$[loginname]' and password='$[password]'" />
+
+	<property index="validateEditPass" explain="用户登录验证SQL(不缓存)"
+		beforeRun="com.qdevelop.web.handler.MD5Handler"
+		sql="select * from qd_jaas_user where loginname='$[loginname]' and password='$[password]'" />
+
+	<property index="quaryUserRole" explain="获取用户拥有的所有权限ID(不缓存)"
+		cacheAble="false"
+		sql="select a.rid,b.relation,c.rid from (select id,rid,gid from qd_jaas_user where id=$[uid]) a left join
+		 (select rid,relation from qd_jaas_role_relation where rid=$[rid]) b on a.rid = b.rid left join 
+		 (select id,rid from qd_jaas_useragent where id = $[uid]) c on a.id=c.id " />
+
+	<property index="userInfo" explain="查看用户列表"
+		sql="select * from qd_jaas_user where $[_autoSearch]" />
+
+	<property index="quaryUsers" explain="查看用户列表" 
+		sql="select * from qd_jaas_user where $[_autoSearch] and rid>0">
+		<formatter>
+			<expression>@com.qdevelop.web.handler.ParseRoleNameHandler@addNameByRID(RID,#this)</expression>
+		</formatter>
+	</property>
+
+	<property index="editUser" explain="编辑用户信息的"
+		sql="update qd_jaas_user set id = $[id], loginname = '$[loginname]', name = '$[name]', rid = '$[rid]', gid = '$[gid]', info = '$[info]',marker=$[marker] where id =$[id]" />
+
+	<property index="addUser" explain="增加用户信息"
+		beforeRun="com.qdevelop.web.handler.MD5Handler"
+		sql="insert into qd_jaas_user (loginname,name,password,rid,gid,info ) values ('$[loginname]', '$[name]', '$[password]', '$[rid]', '$[gid]', '$[info]')" />
+
+	<property index="deleteUser" explain="删除用户信息"
+	sql="DELETE FROM qd_jaas_user WHERE ID='$[id]'" />
+
+	<property index="editPassWord" explain="编辑密码" cacheAble="false"
+		beforeRun="com.qdevelop.web.handler.EditPassWordHandler"
+		sql="update qd_jaas_user set password='$[newPass]' where loginname='$[loginname]' and password='$[oldPass]'" />
+
+	<property index="quaryRolesByGroupId" explain="根据groupId获得RoleId"
+		sql="select rid from qd_jaas_group where id=$[id]" />
+
+	<property index="quaryGroups" explain="查看组列表"
+		sql="select * from qd_jaas_group where $[_autoSearch]" />
+
+	<property index="addGroup" explain="插入角色组信息"
+		sql="insert into qd_jaas_group (name,rid,info ) values ( '$[name]', '$[rid]', '$[info]')" />
+
+	<property index="editGroup" explain="修改角色组信息"
+		sql="update qd_jaas_group set name='$[name]',rid='$[rid]', info='$[info]' where id=$[id]" />
+
+	<property index="deleteGroup" explain="删除角色组信息"
+		sql="delete from qd_jaas_group where id=$[id]" />
+
+	<property index="quaryRoles" explain="查看角色列表"
+		sql="select * from qd_jaas_role where $[_autoSearch] order by pid,prior" />
+
+	<property index="addRole" explain="增加角色信息"
+		sql="insert into qd_jaas_role(name,info,pid) values ('$[name]','$[info]',$[pid])" />
+
+	<property index="editRole" explain="更改角色"
+		sql="update qd_jaas_role set name='$[name]',info = '$[info]',pid=$[pid] where id=$[id]" />
+
+	<property index="deleteRole" explain="删除角色"
+		sql="delete from qd_jaas_role where id=$[id]" />
+
+	<property index="deleteRoleChild" explain="删除子角色"
+		sql="delete from qd_jaas_role where pid=$[id]" />
+
+	<property index="updateRolePid" explain="更新角色父节点"
+		sql="update qd_jaas_role set pid=$[pid] where id=$[id]" />
+
+	<property index="quaryUrlRules" explain="查看安全连接列表"
+		sql="select * from qd_jaas_urlrule where $[_autoSearch]" />
+
+	<property index="addUrlRule" explain="增加安全连接"
+		sql="insert into qd_jaas_urlrule(name,urlpattern,rid,gid,issafe) values('$[name]','$[urlpattern]','$[rid]','$[gid]',$[issafe])" />
+
+	<property index="editUrlRule" explain="修改安全连接"
+		sql="update qd_jaas_urlrule set name='$[name]',urlpattern='$[urlpattern]',rid='$[rid]', gid='$[gid]',issafe =$[issafe] where id=$[id]" />
+
+	<property index="deleteUrlRule" explain="删除安全连接"
+		sql="delete from qd_jaas_urlrule where id=$[id]" />
+
+	<property index="queryDataRoleList" explain="角色关系查询"
+		sql="select * from qd_jaas_role_relation where $[_autoSearch]">
+		<formatter>
+			<expression>@com.qdevelop.web.handler.ParseRoleNameHandler@addNameByRID(RID,RELATION,#this)
+			</expression>
+		</formatter>
+	</property>
+
+	<property index="roleRealationMaintainInsert" explain="角色关系插入"
+		sql="insert into qd_jaas_role_relation(rid,relation) values($[rid],'$[relation]')" />
+
+	<property index="roleRealationMaintainEdit" explain="角色关系修改"
+		sql="update qd_jaas_role_relation set relation ='$[relation]',rid=$[rid] where rid=$[oid]" />
+
+	<property index="roleRealationMaintainDel" explain="角色关系删除"
+		sql="delete from qd_jaas_role_relation where rid=$[rid]" />
+
+	<property index="queryUserAgent" explain="用户代理角色列表"
+		sql="select a.*,u.name from qd_jaas_useragent a,qd_jaas_user u where a.id = u.id where $[_autoSearch]" />
+
+	<property index="userAgentInsert" explain="用户代理角色插入"
+		sql="insert into qd_jaas_useragent(id,rid) values($[id],'$[rid]')" />
+
+	<property index="userAgentEdit" explain="用户代理角色修改"
+		sql="update qd_jaas_useragent set rid ='$[rid]' where id=$[id]" />
+
+	<property index="userAgentDel" explain="用户代理角色删除"
+		sql="delete from qd_jaas_useragent where id=$[id]" />
+
+	<property index="dataSecurityMaintainInsert" explain="数据权限关系表插入"
+		sql="insert into $[stable](id,rid,sid) values($[id],'NULL','$[sid]')" />
+
+	<property index="dataSecurityMaintainEdit" explain="数据权限关系表修改"
+		sql="update $[stable] set sid ='$[sid]' where id=$[id]" />
+
+	<property index="dataSecurityMaintainDel" explain="数据权限关系表删除"
+		sql="delete from $[stable] where rid = 'NULL' and id=$[id]" />
+
+	<property index="dateSecurityMaintainList" explain="数据权限维护"
+		pagination="10"
+		sql="select * from (select a.*,b.rid as s_rid,b.sid as s_sid from (#TABLE) a left join $[sTable] b on a.$[stablekey] = b.id ) t where $[_autoSearch]" />
+
+	<property index="workflowRecord" explain="工作流详细审批信息"
+		sql="select a.isaccept,a.explain,a.timer,a.wfidx,b.name as username,c.name as rid from (select username,rid,isaccept,explain,to_char(timer,'yyyy/mm/dd hh24:mi:ss') as timer,wfidx from qd_workflow where name='$[flowName]' and dataid = $[dataId] order by timer desc) a, (select rid,name,loginname from qd_jaas_user) b, (select id,name from qd_jaas_role) c where a.username = b.loginname and a.rid = c.id" />
+
+	<property index="workflowBaseInit" explain="工作流初始话数据"
+		sql="select a.id,a.wid,b.wfidx from (select wid,id from $[sTable]) a, (select dataid,max(distinct wfidx) as wfidx from qd_workflow where name='$[flowName]' group by dataid) b where a.id = b.dataid" />
+		
+	<property index="operaterLogInsert" explain="操作日志插入数据库"
+		sql="insert into qd_operater_log(user_id,user_name,fun_name,uri,content,oper_time,ip) value(?,?,?,?,?,?,?)" />
+</SQLConfig>
